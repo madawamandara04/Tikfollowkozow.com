@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PointsFlow - Social Media Promotion Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --card-bg: rgba(30, 30, 30, 0.6);
+            --accent-orange: #ff6b35;
+            --accent-red: #f7931e;
+            --neon-green: #00ff88;
+            --neon-green-dim: #00cc6a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d1810 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent-orange);
+            -webkit-text-fill-color: var(--accent-orange);
+        }
+
+        .points-display {
+            background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,204,106,0.2));
+            border: 2px solid var(--neon-green);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+            to { box-shadow: 0 0 30px rgba(0,255,136,0.6); }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            text-align: center;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: var(--accent-orange);
+            border-bottom: 2px solid var(--accent-orange);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .auth-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 20px rgba(255,107,53,0.2);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-green-dim));
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .auth-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,255,136,0.4);
+        }
+
+        .auth-switch {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .auth-switch a {
+            color: var(--accent-orange);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: linear-gradient(135deg, rgba(255,107,53,0.3), rgba(247,147,30,0.3));
+            border-color: var(--accent-orange);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,107,53,0.2);
+        }
+
+        .nav-tab i {
+            margin-right: 0.5rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent-orange);
+            box-shadow: 0 20px 40px rgba(255,107,53,0.2);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-green-dim));
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,255,136,0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-orange);
+            color: #000;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .points-info {
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(247,147,30,0.1));
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .point-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .point-item i {
+            font-size: 2rem;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .point-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--neon-green);
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 20px rgba(255,107,53,0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .cost-display {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid var(--neon-green);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .cost-display span {
+            color: var(--neon-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            border-color: var(--accent-orange);
+            transform: translateX(5px);
+        }
+
+        .task-info h4 {
+            margin-bottom: 0.3rem;
+        }
+
+        .task-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .task-points {
+            color: var(--neon-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .referral-box {
+            background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(247,147,30,0.2));
+            border: 2px dashed var(--accent-orange);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .referral-code {
+            background: rgba(0,0,0,0.5);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+            display: inline-block;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .history-table th {
+            background: rgba(255,107,53,0.2);
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .history-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .positive {
+            color: var(--neon-green);
+        }
+
+        .negative {
+            color: #ff4757;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--secondary-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            z-index: 1000;
+            text-align: center;
+            min-width: 300px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .popup-icon {
+            font-size: 4rem;
+            color: var(--neon-green);
+            margin-bottom: 1rem;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0,255,136,0.3);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .screenshot-upload {
+            border: 2px dashed var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .screenshot-upload:hover {
+            border-color: var(--accent-orange);
+            background: rgba(255,107,53,0.1);
+        }
+
+        .screenshot-upload i {
+            font-size: 3rem;
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 2px solid var(--neon-green);
+        }
+
+        .task-detail-modal {
+            text-align: left;
+        }
+
+        .task-detail-modal h3 {
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .task-detail-info {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .task-detail-info p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .task-detail-info strong {
+            color: var(--text-primary);
+        }
+
+        .pending-tasks {
+            background: rgba(255,193,7,0.1);
+            border: 1px solid rgba(255,193,7,0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .pending-tasks h3 {
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+
+        .verification-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-pending {
+            background: rgba(255,193,7,0.2);
+            color: #ffc107;
+        }
+
+        .badge-approved {
+            background: rgba(0,255,136,0.2);
+            color: var(--neon-green);
+        }
+
+        .badge-rejected {
+            background: rgba(255,71,87,0.2);
+            color: #ff4757;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-approve {
+            background: var(--neon-green);
+            color: #000;
+        }
+
+        .btn-reject {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .my-task-status {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Adsterra card specific */
+        .adsterra-card {
+            background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(247,147,30,0.2));
+            border: 2px solid var(--accent-orange);
+            margin-bottom: 2rem;
+        }
+        .adsterra-card .card-icon {
+            background: linear-gradient(135deg, #ff8c00, #ff6b35);
+        }
+        .countdown-timer {
+            font-size: 0.9rem;
+            color: var(--accent-orange);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+            
+            .task-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .admin-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>PointsFlow</span>
+        </div>
+        <div class="points-display" id="pointsDisplay">
+            <i class="fas fa-coins"></i>
+            <span id="totalPoints">0</span> Points
+        </div>
+        <div class="user-info" id="userInfo">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Login/Signup Container -->
+    <div class="container" id="authContainer">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <p class="auth-switch">
+                        Don't have an account? <a onclick="switchAuthTab('signup')">Sign Up</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form">
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="signupName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required minlength="6">
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                    <p class="auth-switch">
+                        Already have an account? <a onclick="switchAuthTab('login')">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="container main-content" id="mainContent">
+        <nav class="nav-tabs">
+            <div class="nav-tab active" onclick="showSection('dashboard')">
+                <i class="fas fa-home"></i> Dashboard
+            </div>
+            <div class="nav-tab" onclick="showSection('earn')">
+                <i class="fas fa-tasks"></i> Earn Points
+            </div>
+            <div class="nav-tab" onclick="showSection('promote')">
+                <i class="fas fa-rocket"></i> Add Promotion
+            </div>
+            <div class="nav-tab" onclick="showSection('my-tasks')">
+                <i class="fas fa-list-check"></i> My Tasks
+            </div>
+            <div class="nav-tab" onclick="showSection('history')">
+                <i class="fas fa-history"></i> History
+            </div>
+            <div class="nav-tab" onclick="showSection('referral')">
+                <i class="fas fa-gift"></i> Referral
+            </div>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="points-info">
+                <div class="point-item">
+                    <i class="fas fa-eye"></i>
+                    <div class="point-value">1 Point</div>
+                    <div>Per View</div>
+                </div>
+                <div class="point-item">
+                    <i class="fas fa-thumbs-up"></i>
+                    <div class="point-value">2 Points</div>
+                    <div>Per Like</div>
+                </div>
+                <div class="point-item">
+                    <i class="fas fa-user-plus"></i>
+                    <div class="point-value">4 Points</div>
+                    <div>Per Follow</div>
+                </div>
+            </div>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Earn Points</h3>
+                    <p>Complete tasks from other users. Watch, like, and follow to earn points that you can use to promote your own content.</p>
+                    <button class="btn" onclick="showSection('earn')">
+                        <i class="fas fa-play"></i> Start Earning
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Add Promotion</h3>
+                    <p>Create promotion tasks for your social media content. Other users will complete them to earn points.</p>
+                    <button class="btn" onclick="showSection('promote')">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h3>My Tasks</h3>
+                    <p>View your created promotion tasks and verify completed submissions from other users.</p>
+                    <button class="btn btn-secondary" onclick="showSection('my-tasks')">
+                        <i class="fas fa-eye"></i> View My Tasks
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>History</h3>
+                    <p>View your complete transaction history including points earned and spent on all your activities.</p>
+                    <button class="btn btn-secondary" onclick="showSection('history')">
+                        <i class="fas fa-list"></i> View History
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3>Referral Program</h3>
+                    <p>Invite friends and earn 100 points for each referral. Share your unique code and watch your points grow!</p>
+                    <button class="btn btn-secondary" onclick="showSection('referral')">
+                        <i class="fas fa-share"></i> Get Code
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Earn Points Section -->
+        <section id="earn" class="section">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">
+                <i class="fas fa-tasks" style="color: var(--accent-orange);"></i> 
+                Available Tasks
+            </h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                Complete these tasks and upload screenshot proof to earn points
+            </p>
+
+            <!-- ===== NEW ADSTERRA CARD ===== -->
+            <div class="card adsterra-card" id="adsterraCard">
+                <div class="card-icon">
+                    <i class="fas fa-ad"></i>
+                </div>
+                <h3>✨ Adsterra Daily Offer</h3>
+                <p>Click the link below, visit the offer, then come back and claim <strong>5 points</strong>! Available once every 24 hours.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                    <a href="https://www.effectivegatecpm.com/cubqhj6kq?key=02b9f010be2b403f6a8fec7c45b5bfea" target="_blank" class="btn btn-secondary" onclick="adsterraLinkClicked()">
+                        <i class="fas fa-external-link-alt"></i> 1. Visit Adsterra
+                    </a>
+                    <button class="btn" id="claimAdsterraBtn" onclick="claimAdsterraPoints()" disabled>
+                        <i class="fas fa-coins"></i> 2. Claim Points
+                    </button>
+                </div>
+                <div id="adsterraCountdown" class="countdown-timer" style="margin-top: 1rem;"></div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 1rem;">Make sure you return to this tab after visiting the offer. The claim button will be enabled for 10 minutes after you click the first button.</p>
+            </div>
+            <!-- ===== END ADSTERRA CARD ===== -->
+
+            <div id="taskList" class="task-list">
+                <!-- Tasks will be generated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Add Promotion Section -->
+        <section id="promote" class="section">
+            <div class="form-container">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-rocket" style="color: var(--accent-orange);"></i>
+                    Create Promotion Task
+                </h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Create a task that other users can complete to promote your content
+                </p>
+                
+                <form id="promotionForm">
+                    <div class="form-group">
+                        <label>Select Platform</label>
+                        <select id="platform" required>
+                            <option value="">Choose Platform</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="twitter">Twitter/X</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Task Title</label>
+                        <input type="text" id="taskTitle" placeholder="e.g., Watch my new tech review video" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Content Link</label>
+                        <input type="url" id="contentLink" placeholder="https://..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interaction Type</label>
+                        <select id="interactionType" required onchange="calculateCost()">
+                            <option value="">Select Type</option>
+                            <option value="view">Views (Cost: 1 Point per view)</option>
+                            <option value="like">Likes (Cost: 2 Points per like)</option>
+                            <option value="follow">Follow/Subscribe (Cost: 4 Points per follow)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quantity Needed</label>
+                        <input type="number" id="quantity" min="1" max="100" placeholder="How many people do you need?" required oninput="calculateCost()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions for Users</label>
+                        <textarea id="taskInstructions" placeholder="e.g., Watch the full video, like it, and take a screenshot of the liked video..." required></textarea>
+                    </div>
+
+                    <div class="cost-display">
+                        Total Cost: <span id="totalCost">0</span> Points<br>
+                        <small style="color: var(--text-secondary);">These points will be deducted from your balance</small>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- My Tasks Section -->
+        <section id="my-tasks" class="section">
+            <h2 style="margin-bottom: 1.5rem;">
+                <i class="fas fa-list-check" style="color: var(--accent-orange);"></i>
+                My Promotion Tasks
+            </h2>
+            <div id="myTasksList">
+                <!-- My tasks will be displayed here -->
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <h2 style="margin-bottom: 1.5rem;">
+                <i class="fas fa-history" style="color: var(--accent-orange);"></i>
+                Transaction History
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- History will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Referral Section -->
+        <section id="referral" class="section">
+            <div class="referral-box">
+                <h2><i class="fas fa-gift" style="color: var(--accent-orange);"></i> Referral Program</h2>
+                <p style="margin: 1rem 0; color: var(--text-secondary);">Share your code and earn 100 points per referral!</p>
+                
+                <div class="referral-code" id="referralCode">POINTSFLOW123</div>
+                
+                <button class="btn" onclick="copyReferralCode()">
+                    <i class="fas fa-copy"></i> Copy Code
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalReferrals">0</div>
+                    <div class="stat-label">Total Referrals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="referralPoints">0</div>
+                    <div class="stat-label">Points Earned</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Task Detail / Completion Modal -->
+    <div class="overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="popup" id="taskPopup">
+        <div class="task-detail-modal" id="taskModalContent">
+            <!-- Dynamic content -->
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // User Authentication Management
+        let currentUser = null;
+        let users = {};
+
+        // Adsterra claim state
+        let adsterraClickTime = null;
+        let adsterraTimerInterval = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            checkLoginStatus();
+        });
+
+        // Load users from localStorage
+        function loadUsers() {
+            const saved = localStorage.getItem('pointsflow_users');
+            if (saved) {
+                users = JSON.parse(saved);
+            } else {
+                // Create demo users
+                users = {
+                    'demo@example.com': {
+                        name: 'Demo User',
+                        email: 'demo@example.com',
+                        password: 'demo123',
+                        data: {
+                            points: 1000,
+                            createdTasks: [],
+                            completedTasks: [],
+                            pendingSubmissions: [],
+                            history: [],
+                            referrals: 0,
+                            referralPoints: 0,
+                            referralCode: 'DEMO123',
+                            adsterraLastClaim: 0 // timestamp of last Adsterra claim
+                        }
+                    }
+                };
+                saveUsers();
+            }
+        }
+
+        // Save users to localStorage
+        function saveUsers() {
+            localStorage.setItem('pointsflow_users', JSON.stringify(users));
+        }
+
+        // Check if user is logged in
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('pointsflow_current_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if (users[currentUser.email]) {
+                    // Sync user data
+                    currentUser.data = users[currentUser.email].data;
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('show');
+                    document.getElementById('userInfo').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = currentUser.email;
+                    updateUI();
+                    displayAvailableTasks();
+                    displayMyTasks();
+                    displayHistory();
+                    updateAdsterraButtonState(); // check if claim is available
+                } else {
+                    logout();
+                }
+            } else {
+                document.getElementById('authContainer').style.display = 'block';
+                document.getElementById('mainContent').classList.remove('show');
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
+        // Switch between login and signup tabs
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:first-child').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelector('.auth-tab:last-child').classList.add('active');
+                document.getElementById('signupForm').classList.add('active');
+            }
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoader();
+            
+            setTimeout(() => {
+                if (users[email] && users[email].password === password) {
+                    currentUser = {
+                        email: email,
+                        name: users[email].name,
+                        data: users[email].data
+                    };
+                    
+                    localStorage.setItem('pointsflow_current_user', JSON.stringify(currentUser));
+                    
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('show');
+                    document.getElementById('userInfo').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = email;
+                    
+                    updateUI();
+                    displayAvailableTasks();
+                    displayMyTasks();
+                    displayHistory();
+                    updateAdsterraButtonState();
+                    
+                    hideLoader();
+                    showPopup('Welcome Back!', `Successfully logged in as ${email}`, 'success');
+                } else {
+                    hideLoader();
+                    showPopup('Login Failed', 'Invalid email or password. Try demo@example.com / demo123', 'error');
+                }
+            }, 1000);
+        }
+
+        // Handle Signup
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showPopup('Error', 'Passwords do not match!', 'error');
+                return;
+            }
+            
+            if (users[email]) {
+                showPopup('Error', 'Email already exists!', 'error');
+                return;
+            }
+            
+            showLoader();
+            
+            setTimeout(() => {
+                // Create new user
+                users[email] = {
+                    name: name,
+                    email: email,
+                    password: password,
+                    data: {
+                        points: 100, // Welcome bonus
+                        createdTasks: [],
+                        completedTasks: [],
+                        pendingSubmissions: [],
+                        history: [{
+                            date: new Date().toLocaleDateString(),
+                            description: 'Welcome Bonus',
+                            type: 'earn',
+                            points: 100
+                        }],
+                        referrals: 0,
+                        referralPoints: 0,
+                        referralCode: 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+                        adsterraLastClaim: 0
+                    }
+                };
+                
+                saveUsers();
+                
+                currentUser = {
+                    email: email,
+                    name: name,
+                    data: users[email].data
+                };
+                
+                localStorage.setItem('pointsflow_current_user', JSON.stringify(currentUser));
+                
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('mainContent').classList.add('show');
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userEmail').textContent = email;
+                
+                updateUI();
+                addSampleTasks();
+                updateAdsterraButtonState();
+                
+                hideLoader();
+                showPopup('Welcome to PointsFlow!', 'Your account has been created successfully. You received 100 welcome points!', 'success');
+            }, 1500);
+        }
+
+        // Logout
+        function logout() {
+            // clear adsterra timer
+            if (adsterraTimerInterval) {
+                clearInterval(adsterraTimerInterval);
+                adsterraTimerInterval = null;
+            }
+            currentUser = null;
+            localStorage.removeItem('pointsflow_current_user');
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('mainContent').classList.remove('show');
+            document.getElementById('userInfo').style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('signupName').value = '';
+            document.getElementById('signupEmail').value = '';
+            document.getElementById('signupPassword').value = '';
+            document.getElementById('signupConfirmPassword').value = '';
+        }
+
+        // Add sample tasks for new users
+        function addSampleTasks() {
+            if (!currentUser) return;
+            
+            const sampleTasks = [
+                {
+                    id: Date.now() + 1,
+                    platform: 'youtube',
+                    title: 'Watch Tech Review Video',
+                    link: 'https://youtube.com/watch?v=example123',
+                    type: 'view',
+                    points: 1,
+                    instructions: 'Watch the video for at least 30 seconds and take a screenshot',
+                    creator: 'demo@example.com',
+                    status: 'active',
+                    completions: 0,
+                    maxCompletions: 10,
+                    createdAt: new Date().toLocaleDateString()
+                },
+                {
+                    id: Date.now() + 2,
+                    platform: 'instagram',
+                    title: 'Like Photography Post',
+                    link: 'https://instagram.com/p/example456',
+                    type: 'like',
+                    points: 2,
+                    instructions: 'Like the post and take a screenshot showing the liked heart',
+                    creator: 'demo@example.com',
+                    status: 'active',
+                    completions: 0,
+                    maxCompletions: 20,
+                    createdAt: new Date().toLocaleDateString()
+                },
+                {
+                    id: Date.now() + 3,
+                    platform: 'tiktok',
+                    title: 'Follow Dance Account',
+                    link: 'https://tiktok.com/@danceaccount',
+                    type: 'follow',
+                    points: 4,
+                    instructions: 'Follow the account and take a screenshot of the profile showing Following',
+                    creator: 'demo@example.com',
+                    status: 'active',
+                    completions: 0,
+                    maxCompletions: 15,
+                    createdAt: new Date().toLocaleDateString()
+                }
+            ];
+            
+            // Add to demo user's created tasks
+            if (users['demo@example.com']) {
+                sampleTasks.forEach(task => {
+                    if (!users['demo@example.com'].data.createdTasks.find(t => t.title === task.title)) {
+                        users['demo@example.com'].data.createdTasks.push(task);
+                    }
+                });
+                saveUsers();
+            }
+        }
+
+        // Data Management
+        function getUserData() {
+            return currentUser ? currentUser.data : null;
+        }
+
+        function saveUserData() {
+            if (currentUser && users[currentUser.email]) {
+                users[currentUser.email].data = currentUser.data;
+                saveUsers();
+                localStorage.setItem('pointsflow_current_user', JSON.stringify(currentUser));
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('totalPoints').textContent = currentUser.data.points;
+            document.getElementById('totalReferrals').textContent = currentUser.data.referrals;
+            document.getElementById('referralPoints').textContent = currentUser.data.referralPoints;
+            document.getElementById('referralCode').textContent = currentUser.data.referralCode || 'POINTSFLOW123';
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'earn') displayAvailableTasks();
+            if (sectionId === 'my-tasks') displayMyTasks();
+            if (sectionId === 'history') displayHistory();
+        }
+
+        // Calculate Promotion Cost
+        function calculateCost() {
+            const type = document.getElementById('interactionType').value;
+            const quantity = parseInt(document.getElementById('quantity').value) || 0;
+            
+            let costPerUnit = 0;
+            switch(type) {
+                case 'view': costPerUnit = 1; break;
+                case 'like': costPerUnit = 2; break;
+                case 'follow': costPerUnit = 4; break;
+            }
+            
+            const totalCost = quantity * costPerUnit;
+            document.getElementById('totalCost').textContent = totalCost;
+        }
+
+        // Create Promotion Task
+        document.getElementById('promotionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showPopup('Login Required', 'Please login to create a task', 'error');
+                return;
+            }
+            
+            const platform = document.getElementById('platform').value;
+            const title = document.getElementById('taskTitle').value;
+            const link = document.getElementById('contentLink').value;
+            const type = document.getElementById('interactionType').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const instructions = document.getElementById('taskInstructions').value;
+            const cost = parseInt(document.getElementById('totalCost').textContent);
+            
+            if (currentUser.data.points < cost) {
+                showPopup('Insufficient Points!', `You need ${cost} points but only have ${currentUser.data.points}.`, 'error');
+                return;
+            }
+            
+            showLoader();
+            
+            setTimeout(() => {
+                const task = {
+                    id: Date.now(),
+                    platform,
+                    title,
+                    link,
+                    type,
+                    points: type === 'view' ? 1 : type === 'like' ? 2 : 4,
+                    instructions,
+                    creator: currentUser.email,
+                    status: 'active',
+                    completions: 0,
+                    maxCompletions: quantity,
+                    createdAt: new Date().toLocaleDateString()
+                };
+                
+                if (!currentUser.data.createdTasks) currentUser.data.createdTasks = [];
+                currentUser.data.createdTasks.push(task);
+                currentUser.data.points -= cost;
+                
+                if (!currentUser.data.history) currentUser.data.history = [];
+                currentUser.data.history.push({
+                    date: new Date().toLocaleDateString(),
+                    description: `Created task: ${title}`,
+                    type: 'spend',
+                    points: -cost
+                });
+                
+                saveUserData();
+                updateUI();
+                
+                document.getElementById('promotionForm').reset();
+                document.getElementById('totalCost').textContent = '0';
+                
+                hideLoader();
+                showPopup('Task Created!', `Your promotion task "${title}" has been created and is now live!`, 'success');
+            }, 1500);
+        });
+
+        // Display Available Tasks (for earning)
+        function displayAvailableTasks() {
+            if (!currentUser) return;
+            
+            const taskList = document.getElementById('taskList');
+            
+            // Get all tasks from all users except current user's own tasks
+            let allTasks = [];
+            Object.values(users).forEach(user => {
+                if (user.email !== currentUser.email && user.data.createdTasks) {
+                    allTasks = allTasks.concat(user.data.createdTasks.filter(t => 
+                        t.status === 'active' && 
+                        t.completions < t.maxCompletions &&
+                        !currentUser.data.completedTasks.includes(t.id)
+                    ));
+                }
+            });
+            
+            if (allTasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No Tasks Available</h3>
+                        <p>Check back later or create your own promotion task!</p>
+                        <button class="btn" onclick="showSection('promote')" style="margin-top: 1rem;">
+                            Create Task
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            taskList.innerHTML = allTasks.map(task => `
+                <div class="task-card">
+                    <div class="task-info" style="flex: 1;">
+                        <h4>
+                            <i class="fab fa-${task.platform}" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> 
+                            ${task.title}
+                        </h4>
+                        <p>
+                            <span style="text-transform: uppercase; font-size: 0.8rem; padding: 0.2rem 0.5rem; background: rgba(255,107,53,0.2); border-radius: 4px; margin-right: 0.5rem;">
+                                ${task.type}
+                            </span>
+                            ${task.completions}/${task.maxCompletions} completed • 
+                            <span style="color: var(--neon-green);">+${task.points} Points</span>
+                        </p>
+                    </div>
+                    <button class="btn" onclick="openTaskDetail(${task.id})">
+                        <i class="fas fa-play"></i> Complete Task
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Open Task Detail Modal
+        function openTaskDetail(taskId) {
+            let task = null;
+            
+            // Find task in any user
+            Object.values(users).forEach(user => {
+                if (user.data.createdTasks) {
+                    const found = user.data.createdTasks.find(t => t.id === taskId);
+                    if (found) task = found;
+                }
+            });
+            
+            if (!task) return;
+            
+            const modalContent = document.getElementById('taskModalContent');
+            modalContent.innerHTML = `
+                <h3><i class="fas fa-tasks" style="color: var(--accent-orange);"></i> ${task.title}</h3>
+                
+                <div class="task-detail-info">
+                    <p><strong><i class="fab fa-${task.platform}"></i> Platform:</strong> ${capitalizeFirst(task.platform)}</p>
+                    <p><strong><i class="fas fa-link"></i> Link:</strong> <a href="${task.link}" target="_blank" style="color: var(--accent-orange);">${task.link}</a></p>
+                    <p><strong><i class="fas fa-info-circle"></i> Action Required:</strong> ${capitalizeFirst(task.type)}</p>
+                    <p><strong><i class="fas fa-coins"></i> Reward:</strong> <span style="color: var(--neon-green);">${task.points} Points</span></p>
+                    <p><strong><i class="fas fa-align-left"></i> Instructions:</strong></p>
+                    <p style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">${task.instructions}</p>
+                </div>
+
+                <div style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                    <p style="color: #ffc107; margin-bottom: 0.5rem;"><i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong></p>
+                    <p style="font-size: 0.9rem;">After completing the task, take a screenshot as proof and upload it below. The task creator will verify your submission.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Screenshot Proof</label>
+                    <div class="screenshot-upload" onclick="document.getElementById('screenshotInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload screenshot</p>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">Supported: JPG, PNG, GIF</p>
+                    </div>
+                    <input type="file" id="screenshotInput" accept="image/*" style="display: none;" onchange="previewScreenshot(this)">
+                    <div id="screenshotPreview"></div>
+                </div>
+
+                <button class="btn" style="width: 100%;" onclick="submitTaskCompletion(${task.id})">
+                    <i class="fas fa-check"></i> Submit for Verification
+                </button>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="closePopup()">
+                    Cancel
+                </button>
+            `;
+            
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('taskPopup').classList.add('show');
+        }
+
+        // Preview Screenshot
+        let currentScreenshot = null;
+        
+        function previewScreenshot(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentScreenshot = e.target.result;
+                    document.getElementById('screenshotPreview').innerHTML = `
+                        <img src="${e.target.result}" class="screenshot-preview" alt="Screenshot Preview">
+                        <p style="color: var(--neon-green); text-align: center; margin-top: 0.5rem;">
+                            <i class="fas fa-check-circle"></i> Screenshot ready for upload
+                        </p>
+                    `;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Submit Task Completion
+        function submitTaskCompletion(taskId) {
+            if (!currentScreenshot) {
+                alert('Please upload a screenshot as proof of completion!');
+                return;
+            }
+            
+            showLoader();
+            
+            setTimeout(() => {
+                const submission = {
+                    id: Date.now(),
+                    taskId: taskId,
+                    screenshot: currentScreenshot,
+                    submittedAt: new Date().toLocaleDateString(),
+                    status: 'pending',
+                    submittedBy: currentUser.email
+                };
+                
+                if (!currentUser.data.pendingSubmissions) currentUser.data.pendingSubmissions = [];
+                currentUser.data.pendingSubmissions.push(submission);
+                
+                if (!currentUser.data.completedTasks) currentUser.data.completedTasks = [];
+                currentUser.data.completedTasks.push(taskId);
+                
+                saveUserData();
+                
+                currentScreenshot = null;
+                hideLoader();
+                closePopup();
+                displayAvailableTasks();
+                
+                showPopup('Submitted!', 'Your task completion has been submitted for verification. You will receive points once approved.', 'success');
+            }, 2000);
+        }
+
+        // Display My Tasks (with verification)
+        function displayMyTasks() {
+            if (!currentUser) return;
+            
+            const myTasksList = document.getElementById('myTasksList');
+            const myTasks = currentUser.data.createdTasks || [];
+            
+            if (myTasks.length === 0) {
+                myTasksList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No Tasks Created Yet</h3>
+                        <p>Create your first promotion task to get started!</p>
+                        <button class="btn" onclick="showSection('promote')" style="margin-top: 1rem;">
+                            Create Task
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            // Pending verifications section
+            const pendingSubs = currentUser.data.pendingSubmissions ? currentUser.data.pendingSubmissions.filter(s => 
+                myTasks.some(t => t.id === s.taskId) && s.status === 'pending'
+            ) : [];
+            
+            if (pendingSubs.length > 0) {
+                html += `
+                    <div class="pending-tasks">
+                        <h3><i class="fas fa-clock"></i> Pending Verifications (${pendingSubs.length})</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Review submissions and approve to award points</p>
+                `;
+                
+                pendingSubs.forEach(sub => {
+                    const task = myTasks.find(t => t.id === sub.taskId);
+                    html += `
+                        <div class="my-task-status">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                <div>
+                                    <h4>${task ? task.title : 'Unknown Task'}</h4>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                        Submitted: ${sub.submittedAt}
+                                    </p>
+                                </div>
+                                <span class="verification-badge badge-pending">Pending</span>
+                            </div>
+                            <img src="${sub.screenshot}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid var(--glass-border); margin-bottom: 1rem;">
+                            <div class="admin-controls">
+                                <button class="btn btn-approve btn-small" onclick="verifySubmission(${sub.id}, 'approve')">
+                                    <i class="fas fa-check"></i> Approve & Pay
+                                </button>
+                                <button class="btn btn-reject btn-small" onclick="verifySubmission(${sub.id}, 'reject')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            // My active tasks
+            html += '<h3 style="margin-bottom: 1rem;"><i class="fas fa-bullhorn" style="color: var(--accent-orange);"></i> My Active Tasks</h3>';
+            
+            html += '<div class="cards-grid">' + myTasks.map(task => {
+                const progress = (task.completions / task.maxCompletions) * 100;
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div class="card-icon" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                <i class="fab fa-${task.platform}"></i>
+                            </div>
+                            <span class="verification-badge ${task.status === 'active' ? 'badge-approved' : 'badge-pending'}">
+                                ${task.status}
+                            </span>
+                        </div>
+                        <h3>${task.title}</h3>
+                        <p style="font-size: 0.9rem; word-break: break-all;">${task.link}</p>
+                        <div style="margin: 1rem 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--text-secondary);">Progress</span>
+                                <span style="color: var(--neon-green);">${task.completions}/${task.maxCompletions}</span>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim)); height: 100%; width: ${progress}%; transition: width 0.5s;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: var(--text-secondary);">Cost: ${task.points} pts each</span>
+                            <span style="color: var(--accent-orange);">Total: ${task.points * task.maxCompletions} pts</span>
+                        </div>
+                    </div>
+                `;
+            }).join('') + '</div>';
+            
+            myTasksList.innerHTML = html;
+        }
+
+        // Verify Submission (Approve/Reject)
+        function verifySubmission(submissionId, action) {
+            const submission = currentUser.data.pendingSubmissions.find(s => s.id === submissionId);
+            if (!submission) return;
+            
+            const task = currentUser.data.createdTasks.find(t => t.id === submission.taskId);
+            
+            if (action === 'approve') {
+                showLoader();
+                
+                setTimeout(() => {
+                    // Find the user who submitted and award points
+                    const submitterEmail = submission.submittedBy;
+                    if (users[submitterEmail]) {
+                        users[submitterEmail].data.points += task.points;
+                        users[submitterEmail].data.history.push({
+                            date: new Date().toLocaleDateString(),
+                            description: `Task approved: ${task.title}`,
+                            type: 'earn',
+                            points: task.points
+                        });
+                    }
+                    
+                    submission.status = 'approved';
+                    if (task) {
+                        task.completions++;
+                        if (task.completions >= task.maxCompletions) {
+                            task.status = 'completed';
+                        }
+                    }
+                    
+                    currentUser.data.history.push({
+                        date: new Date().toLocaleDateString(),
+                        description: `Approved task completion: ${task.title}`,
+                        type: 'spend',
+                        points: -task.points
+                    });
+                    
+                    saveUsers();
+                    saveUserData();
+                    
+                    hideLoader();
+                    displayMyTasks();
+                    showPopup('Approved!', `You approved the submission and ${task.points} points have been awarded.`, 'success');
+                }, 1000);
+            } else {
+                submission.status = 'rejected';
+                saveUserData();
+                displayMyTasks();
+                showPopup('Rejected', 'The submission has been rejected.', 'error');
+            }
+        }
+
+        // Display History
+        function displayHistory() {
+            if (!currentUser) return;
+            
+            const tbody = document.getElementById('historyTableBody');
+            const history = currentUser.data.history || [];
+            
+            if (history.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem;">
+                            No transactions yet. Start earning or spending points!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = history.slice().reverse().map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td>${item.description}</td>
+                    <td>
+                        <span style="text-transform: uppercase; font-size: 0.8rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${item.type === 'earn' ? 'rgba(0,255,136,0.2)' : 'rgba(255,71,87,0.2)'}; color: ${item.type === 'earn' ? 'var(--neon-green)' : '#ff4757'};">
+                            ${item.type}
+                        </span>
+                    </td>
+                    <td class="${item.points > 0 ? 'positive' : 'negative'}">
+                        ${item.points > 0 ? '+' : ''}${item.points}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Copy Referral Code
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showPopup('Copied!', 'Referral code copied to clipboard!', 'success');
+            });
+        }
+
+        // Show Popup
+        function showPopup(title, message, type = 'success') {
+            const modalContent = document.getElementById('taskModalContent');
+            modalContent.innerHTML = `
+                <div class="popup-icon" style="color: ${type === 'success' ? 'var(--neon-green)' : '#ff4757'};">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <button class="btn" onclick="closePopup()" style="margin-top: 1rem;">OK</button>
+            `;
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('taskPopup').classList.add('show');
+        }
+
+        // Close Popup
+        function closePopup() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('taskPopup').classList.remove('show');
+            currentScreenshot = null;
+        }
+
+        // Show/Hide Loader
+        function showLoader() {
+            document.getElementById('loader').classList.add('show');
+            document.getElementById('overlay').classList.add('show');
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        // Utility Functions
+        function capitalizeFirst(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // ==================== ADSTERRA INTEGRATION ====================
+        function adsterraLinkClicked() {
+            if (!currentUser) return;
+            // Set a flag that user clicked the link, enable claim button for 10 minutes
+            adsterraClickTime = Date.now();
+            document.getElementById('claimAdsterraBtn').disabled = false;
+            // Start countdown
+            if (adsterraTimerInterval) clearInterval(adsterraTimerInterval);
+            adsterraTimerInterval = setInterval(updateAdsterraCountdown, 1000);
+            updateAdsterraCountdown();
+        }
+
+        function updateAdsterraCountdown() {
+            const claimBtn = document.getElementById('claimAdsterraBtn');
+            const countdownEl = document.getElementById('adsterraCountdown');
+            if (!adsterraClickTime) {
+                countdownEl.innerHTML = '';
+                return;
+            }
+            const now = Date.now();
+            const elapsed = now - adsterraClickTime;
+            const remaining = 10 * 60 * 1000 - elapsed; // 10 minutes
+            if (remaining <= 0) {
+                // Time expired
+                claimBtn.disabled = true;
+                adsterraClickTime = null;
+                countdownEl.innerHTML = '⏰ Time expired. Click the link again.';
+                if (adsterraTimerInterval) {
+                    clearInterval(adsterraTimerInterval);
+                    adsterraTimerInterval = null;
+                }
+                return;
+            }
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            countdownEl.innerHTML = `⏳ Claim window expires in ${minutes}:${seconds.toString().padStart(2,'0')}`;
+        }
+
+        function claimAdsterraPoints() {
+            if (!currentUser) return;
+            // Check if within 10 minutes of click
+            if (!adsterraClickTime || (Date.now() - adsterraClickTime) > 10 * 60 * 1000) {
+                showPopup('Timeout', 'Please click the Adsterra link first and then claim within 10 minutes.', 'error');
+                document.getElementById('claimAdsterraBtn').disabled = true;
+                adsterraClickTime = null;
+                return;
+            }
+            // Check 24h cooldown
+            const lastClaim = currentUser.data.adsterraLastClaim || 0;
+            const now = Date.now();
+            if (now - lastClaim < 24 * 60 * 60 * 1000) {
+                const hoursLeft = Math.ceil((24 * 60 * 60 * 1000 - (now - lastClaim)) / (60 * 60 * 1000));
+                showPopup('Already Claimed', `You can only claim once every 24 hours. Try again in about ${hoursLeft} hours.`, 'error');
+                return;
+            }
+
+            // Award points
+            currentUser.data.points += 5;
+            currentUser.data.adsterraLastClaim = now;
+            if (!currentUser.data.history) currentUser.data.history = [];
+            currentUser.data.history.push({
+                date: new Date().toLocaleDateString(),
+                description: 'Adsterra Daily Offer',
+                type: 'earn',
+                points: 5
+            });
+            saveUserData();
+            updateUI();
+
+            // Reset buttons
+            document.getElementById('claimAdsterraBtn').disabled = true;
+            adsterraClickTime = null;
+            if (adsterraTimerInterval) {
+                clearInterval(adsterraTimerInterval);
+                adsterraTimerInterval = null;
+            }
+            document.getElementById('adsterraCountdown').innerHTML = '✅ Claimed! Come back tomorrow.';
+            showPopup('Points Earned!', 'You received 5 points from Adsterra offer. Come back tomorrow for more!', 'success');
+        }
+
+        function updateAdsterraButtonState() {
+            if (!currentUser) return;
+            const lastClaim = currentUser.data.adsterraLastClaim || 0;
+            const now = Date.now();
+            if (now - lastClaim < 24 * 60 * 60 * 1000) {
+                // Already claimed today, disable both buttons
+                document.getElementById('claimAdsterraBtn').disabled = true;
+                // Also disable the link button? No, they can still click but claim will be blocked.
+                // Show countdown to next claim
+                const nextClaim = lastClaim + 24 * 60 * 60 * 1000;
+                const msUntil = nextClaim - now;
+                const hours = Math.floor(msUntil / (60*60*1000));
+                const minutes = Math.floor((msUntil % (60*60*1000)) / (60*1000));
+                document.getElementById('adsterraCountdown').innerHTML = `⏰ Next claim available in ${hours}h ${minutes}m`;
+            } else {
+                document.getElementById('adsterraCountdown').innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
